@@ -1,0 +1,9 @@
+{
+  "name": "healthtech-backend-error-groups",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "healthcheck": "node --experimental-strip-types src/healthcheck.ts",
+    "test": "node --experimental-strip-types --test test/error-grouping.test.ts"
+  }
+}
