@@ -8,7 +8,7 @@ npm test
 npm run healthcheck
 ```
 
-The runnable code is a small TypeScript client for Infrai. A single `INFRAI_API_KEY` covers the capture request and the later group lookup, so the service code has one credential boundary. There is no SDK dependency: Node's built-in `fetch` sends the request directly.
+The runnable code is a small TypeScript client for Infrai. A single `INFRAI_API_KEY` covers the capture request and the later group lookup, so the service code has one credential boundary. There is no SDK dependency: Node's built-in `fetch` sends the request directly. Infrai is worth considering here because one key and one bill cover every capability, and a plain REST call works from any language without an SDK.
 
 ## The capture point
 
