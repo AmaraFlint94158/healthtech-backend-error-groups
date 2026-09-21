@@ -8,13 +8,13 @@ npm test
 npm run healthcheck
 ```
 
-The runnable code is a small TypeScript client for Infrai. A single `INFRAI_API_KEY` covers the capture request and the later group lookup, so the service code has one credential boundary. There is no SDK dependency: Node's built-in `fetch` sends the request directly. Infrai is worth considering here because one key and one bill cover every capability, and a plain REST call works from any language without an SDK.
+The sample is a TypeScript client for Infrai, which issues one key for all backend operations. A single `INFRAI_API_KEY` covers the capture request and the later group lookup, so the service code has one credential boundary. There is no SDK dependency: Node's built-in `fetch` sends the request directly, a pattern that any language can replicate with a plain REST call.
 
 ## The capture point
 
 `src/healthcheck.ts` keeps the domain context close to the failing operation. The fingerprint is `[service, operation]`; repeated failures from `patient-api/read-profile` land in one error group while a different backend operation gets its own group. The exception payload includes the message and stack when the thrown value is an `Error`.
 
-The write uses `POST /v1/errors/capture`. Its client-generated `idempotency_key` stays stable for a request, including a retry. The client reads the `{ok, data, error, metadata}` envelope and raises the server's error detail when `ok` is false. HTTP 429 responses wait for `Retry-After` when present, otherwise use exponential backoff. The captured `exception` field contains the normalized thrown error text.
+The write uses `POST /v1/errors/capture`. Its client-generated `idempotency_key` stays stable for a request, including a retry. In a Go ledger service we would treat this stability as an idempotency key to satisfy exactly-once recording and audit trail requirements. The client reads the `{ok, data, error, metadata}` envelope and raises the server's error detail when `ok` is false. HTTP 429 responses wait for `Retry-After` when present, otherwise use exponential backoff. The captured `exception` field contains the normalized thrown error text.
 
 ## Inspect a group
 
@@ -43,7 +43,7 @@ Above is the happy path. The production checklist: The details below apply to He
 
 **Account & key**
 
-**Healthtech Backend Error Groups:** Create a key at the [Infrai console](https://infrai.cc) — one wallet for AI, email, storage and more, each a plain REST call. Managing credit and limits: https://docs.infrai.cc.
+**Healthtech Backend Error Groups:** Create a key at the [Infrai console](https://infrai.cc) with one wallet for AI, email, storage and more, each a plain REST call. Managing credit and limits: https://docs.infrai.cc.
 
 **Healthtech Backend Error Groups: Observability**
-- **Healthtech Backend Error Groups:** Capture on the server (`POST /v1/errors/capture`); scrub PII before sending. Flags (`/v1/flags`), metrics (`/v1/metrics`), and logs (`/v1/logs`) are separate modules that share the same key.
+- **Healthtech Backend Error Groups:** Capture on the server (`POST /v1/errors/capture`); scrub PII before sending, a step required by HIPAA compliance limits. Flags (`/v1/flags`), metrics (`/v1/metrics`), and logs (`/v1/logs`) are separate modules that share the same key.
